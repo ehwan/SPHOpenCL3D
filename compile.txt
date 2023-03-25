@@ -1,0 +1,1 @@
+e++ *.cpp libMC33++.a -lsfml-window -lsfml-system -lsfml-graphics -framework OpenCL
