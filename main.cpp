@@ -3,9 +3,9 @@
 #include "MC33.h"
 
 engine_t engine;
-int X = 300;
-int Y = 150;
-int Z = 150;
+int X = 400;
+int Y = 200;
+int Z = 200;
 cl::Buffer image_buffer;
 
 int main()
@@ -14,20 +14,20 @@ int main()
   param.minbound = { -1.0, -1.0, -1.0 };
   param.maxbound = { 3.0, 2.0, 2.0 };
   param.Cs = 10;
-  param.gravity = { 0, -3.0, 0 };
-  param.h = 0.04;
+  param.gravity = { 0, -4.0, 0 };
+  param.h = 0.03;
   param.eta = 2.5;
   param.mu = 0.02;
   param.gamma = 7.0;
-  param.max_particle_count = 500000;
-  param.courant_dt_factor = 0.3;
-  param.diffusion_dt_factor = 0.1;
+  param.max_particle_count = 1800000;
+  param.courant_dt_factor = 0.8;
+  param.diffusion_dt_factor = 0.8;
   param.rho0 = 1;
   engine.set( param );
   engine.load_opencl();
-  engine.dt = 1.0/1000.0;
+  //engine.dt = 1.0/1500.0;
 
-  ehfloat static_gap = 0.5;
+  ehfloat static_gap = 2.1;
   for( ehfloat z=-static_gap*engine.H; z<1.0+static_gap*engine.H; z+=engine.gap )
   {
     for( ehfloat y=-static_gap*engine.H; y<1.0+static_gap*engine.H; y+=engine.gap )
@@ -43,9 +43,8 @@ int main()
           info.flag = EH_PARTICLE_STATIC|EH_PARTICLE_STATICMOVE|EH_PARTICLE_NOFORCE;
           info.color = 0;
           engine.add_particle( info );
-        }else if( x < 0.7 && x > 0.5*engine.H 
-        && y > 0.5*engine.H && y < 1-0.5*engine.H
-        && z > 0.5*engine.H && z < 1-0.5*engine.H
+        }else if( 
+            x < 0.8
         )
         {
           particle_info_t info;
@@ -89,21 +88,23 @@ int main()
   image_buffer = cl::Buffer( engine.context, CL_MEM_READ_WRITE, sizeof(ehfloat)*X*Y*Z );
 
   ehfloat t = 0;
+  int renderstep0 = 0.02/engine.dt;
   int renderstep = 0;
   std::ofstream file( "out.txt.nosync" );
   grid3d grid;
   std::vector<ehfloat> image( X*Y*Z );
   MC33 mc33;
   surface surf;
-  while( t < 10 )
+  while( t < 20 )
   {
     engine.step();
     t += engine.dt;
 
     if( renderstep == 0 )
     {
-      renderstep = 20;
+      renderstep = renderstep0;
 
+      /*
       // print marching cubes
       int err;
       get_image_kernel(
@@ -124,7 +125,7 @@ int main()
       grid.set_ratio_aspect( 2.0/(float)X, 1.0/(float)Y, 1.0/(float)Z );
       grid.set_r0( 0, 0, 0 );
       mc33.set_grid3d( grid );
-      mc33.calculate_isosurface( surf, 0.8 );
+      mc33.calculate_isosurface( surf, 0.6 );
 
       int nverts = surf.get_num_vertices();
       const float *vs = surf.getVertex(0);
@@ -139,9 +140,9 @@ int main()
       file.write( (char*)ts, sizeof(unsigned int)*3*ntri );
       file.flush();
       std::cout << t << " " << engine.N << " " << nverts << " " << ntri << "\n";
+      */
 
       // print particle position & velocity
-      /*
       auto p = engine.get_buffer<ehfloat3>( engine.position );
       auto v = engine.get_buffer<ehfloat3>( engine.velocity );
       auto flags = engine.get_buffer<cl_int>( engine.flags );
@@ -162,7 +163,6 @@ int main()
       file.write( (char*)&N, sizeof(N) );
       file.write( (char*)pos.data(), sizeof(ehfloat3)*N );
       file.write( (char*)vel.data(), sizeof(ehfloat3)*N );
-      */
     }
     --renderstep;
   }

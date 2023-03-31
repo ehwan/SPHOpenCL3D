@@ -9,6 +9,6 @@
 #define GRADIENT_TENSOR_EPS 1e-2
 #define LAPLACIAN_TENSOR_EPS 1e-1
 
-#define STATIC_MASS 2.0
+#define STATIC_MASS 1.2
 
 #endif

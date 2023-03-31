@@ -161,7 +161,7 @@ kernel void assume_neighbor_count(
   }
   if( count > 100 )
   {
-    printf( "%d %d %f %f %f\n", id, count, position[id].x, position[id].y, position[id].z );
+    //printf( "%d %d %f %f %f\n", id, count, position[id].x, position[id].y, position[id].z );
   }
   neighbor_count[id] = count;
 }
@@ -249,13 +249,11 @@ ehfloat16 gradient_tensor(
   int id
 )
 {
-/*
     return (ehfloat16)(
               (ehfloat4)(1,0,0,0),
               (ehfloat4)(0,1,0,0),
               (ehfloat4)(0,0,1,0),
               (ehfloat4)(0) );
-              */
 
   ehfloat3 invB[3] = { (ehfloat3)(0), (ehfloat3)(0), (ehfloat3)(0) };
   for( int jj=neighbor_begin[id]; jj<neighbor_begin[id+1]; ++jj )
@@ -326,11 +324,11 @@ kernel void calculate_nonpressure_force(
   {
     int j = neighbors[jj];
     if( j == id ){ continue; }
-    if( flags[j] & EH_PARTICLE_STATIC ){ return; }
+    if( flags[j] & EH_PARTICLE_STATIC ){ continue; }
     ehfloat3 eij = position[id] - position[j];
     ehfloat3 kdV = kernel_gradient(c->invH,eij)*V[j];
     ehfloat3 vij = velocity[id] - velocity[j];
-    if( dot(eij,eij) < 1e-15 ){ continue; }
+    if( dot(eij,eij) < 1e-10 ){ continue; }
     ehfloat invlen = 1.0/length(eij);
     eij = normalize(eij);
     ehfloat3 edgu = (ehfloat3)( dot(gradvx,eij), dot(gradvy,eij), dot(gradvz,eij) );
@@ -384,6 +382,7 @@ kernel void calculate_pressure_force(
     ehfloat3 BkdV = kdV.x*B.s012 + kdV.y*B.s456 + kdV.z*B.s89a;
     force -= (pressure[j]-pressure[id])*BkdV;
   }
+
   pressure_force[id] = force;
 }
 

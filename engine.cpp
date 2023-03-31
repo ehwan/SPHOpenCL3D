@@ -77,7 +77,7 @@ void engine_t::load_opencl()
   grid_particlecount = cl::Buffer( context, CL_MEM_READ_WRITE, (gs+1)*sizeof(cl_int) );
   grid_particlecount2 = cl::Buffer( context, CL_MEM_READ_WRITE, (gs+1)*sizeof(cl_int) );
 
-#define MAX_NEIGHBORS 120 
+#define MAX_NEIGHBORS 200
   neighbors = cl::Buffer( context, CL_MEM_READ_WRITE, maxN*MAX_NEIGHBORS*sizeof(cl_int) );
   neighbor_count = cl::Buffer( context, CL_MEM_READ_WRITE, (maxN+1)*sizeof(cl_int) );
 
@@ -182,8 +182,7 @@ void engine_t::set( param_t &param )
     diffusion_dt = param.diffusion_dt_factor*gap*gap/mu;
   }
   dt = std::min( courant_dt, diffusion_dt );
-  gridH = H;
-  //  + dt*Cs*0.1;
+  gridH = H*1.1;
   gridinvH = 1.0/gridH;
   gravity = param.gravity;
   pressure0 = Cs*Cs*rho0/gamma;
