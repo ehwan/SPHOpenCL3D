@@ -347,13 +347,11 @@ kernel void calculate_pressure(
 {
   int id = get_global_id(0);
   if( id >= c->N ){ return; }
-  pressure[id] = c->Cs*c->Cs*c->rho0/c->gamma * pow( rho[id]/c->rho0, c->gamma );
-  // if( flags[id] & EH_PARTICLE_STATIC )
-  // {
-  //   pressure[id] = c->Cs*c->Cs*c->rho0/c->gamma * pow( c->static_rho, c->gamma );
-  // }else
-  // {
-  // }
+  pressure[id] = c->Cs*c->Cs*c->rho0/c->gamma * (pow( rho[id]/c->rho0, c->gamma ) - 1.0);
+  if( flags[id] & EH_PARTICLE_STATIC )
+  {
+    pressure[id] = c->Cs*c->Cs*c->rho0/c->gamma * (pow( c->static_rho, c->gamma ) - 1.0);
+  }
 }
 kernel void calculate_pressure_force(
   constant struct constant_t *c,
@@ -372,6 +370,7 @@ kernel void calculate_pressure_force(
   if( id >= c->N ){ return; }
   if( flags[id] & EH_PARTICLE_STATIC ){ return; }
 
+/*
   ehfloat16 B = gradient_tensor(c,neighbor_begin,neighbors,position,rho,V,flags,id);
   ehfloat3 force = (ehfloat3)(0,0,0);
   for( int jj=neighbor_begin[id]; jj<neighbor_begin[id+1]; ++jj )
@@ -382,8 +381,19 @@ kernel void calculate_pressure_force(
     ehfloat3 BkdV = kdV.x*B.s012 + kdV.y*B.s456 + kdV.z*B.s89a;
     force -= (pressure[j]-pressure[id])*BkdV;
   }
+*/
+  ehfloat3 accel = (ehfloat3)(0,0,0);
+  for( int jj=neighbor_begin[id]; jj<neighbor_begin[id+1]; ++jj )
+  {
+    int j = neighbors[jj];
+    ehfloat3 rij = position[id] - position[j];
+    ehfloat3 acc = -kernel_gradient(c->invH,rij)*c->mass*( pressure[id]/(rho[id]*rho[id]) + pressure[j]/(rho[j]*rho[j]) );
+    if( flags[j] & EH_PARTICLE_STATIC ){ acc *= STATIC_MASS; }
 
-  pressure_force[id] = force;
+    accel += acc;
+  }
+
+  pressure_force[id] = accel * rho[id];
 }
 
 kernel void advect_phase1(

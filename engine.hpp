@@ -28,31 +28,45 @@ using ehfloat3 = cl_float3;
 using ehfloat4 = cl_float4;
 #endif
 
+// Engine Initialization Parameters
 struct param_t
 {
   int max_particle_count = 10000;
-  // space
+
+  // Smoothing-Length
   ehfloat h = 0.1;
+
+  // Particle-Spacing = h/eta
   ehfloat eta = 3;
 
+  // static particles density
   ehfloat static_rho = 1.3;
 
+  // World Boundary
   ehfloat3 minbound = { 0,0,0 };
   ehfloat3 maxbound = { 1,1,1 };
 
-  // mass, pressure
+  // Default Density
   ehfloat rho0 = 1;
+
+  // Speed of Sound
   ehfloat Cs = 10;
+
+  // pseudo-Equation Of State
   ehfloat gamma = 7;
 
+  // viscousity coefficient
   ehfloat mu = 0.05;
 
+  // courant number for time stepping
   ehfloat courant_dt_factor = 0.2;
   ehfloat diffusion_dt_factor = 0.2;
 
   ehfloat3 gravity = {0,0};
 };
 
+
+// Adding New Particle With this Info-Structure
 struct particle_info_t
 {
   ehfloat3 position = {0,0};
@@ -146,6 +160,8 @@ struct engine_t
 
   cl::Program program;
 
+
+  // OpenCL Kernels
   struct
   {
     cl::KernelFunctor<
