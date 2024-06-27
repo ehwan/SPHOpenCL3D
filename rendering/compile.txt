@@ -1,1 +1,0 @@
-e++ *.cpp -lsfml-window -lsfml-graphics -lsfml-system -framework OpenGL ../../../ehgl/eg/*.cpp  -O2
