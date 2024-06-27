@@ -19,9 +19,8 @@ void main( void ) {
   vec3 col0;
   col0 = vec3( 0.6, 0.8, 1.0 );
   outcol = vec4( col0*(0.4 + diff*0.8) + vec3(1)*spec*0.3, 1 );
-  //outcol.w = 0.6;
+  outcol.w = 0.5;
 
-  /*
   vec3 floor_color;
 
   vec3 normal_dir = dot(lightin,normal_)*normal_;
@@ -43,5 +42,4 @@ void main( void ) {
     }
   }
   outcol = vec4(floor_color*(1.0-outcol.w) + outcol.w*outcol.xyz,1.0);
-  */
 }

@@ -10,6 +10,12 @@
 YouTube:
 [![Dambreak Video](https://img.youtube.com/vi/cos2Pyizmww/0.jpg)](https://www.youtube.com/shorts/cos2Pyizmww)
 
+## Dependencies
+ - OpenCL
+ - SFML
+ - libMC33++
+ - ehgl
+
 ## Build & Run
 
 To start the simulation,
