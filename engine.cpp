@@ -93,14 +93,25 @@ void engine_t::load_opencl()
 
   queue = cl::CommandQueue(context, device);
 
+  std::cout << SPH_OPENCL_KERNEL_FILE << "\n";
+
   // loading sources
-  std::ifstream file("kernels.cl");
+  std::ifstream file(SPH_OPENCL_KERNEL_FILE);
   file.seekg(0, std::ifstream::end);
   size_t filesize = file.tellg();
   std::string source;
   source.resize(filesize);
   file.seekg(0, std::ifstream::beg);
   file.read(&source[0], filesize);
+
+  // loading flag.h
+  file = std::ifstream(SPH_OPENCL_FLAG_FILE);
+  file.seekg(0, std::ifstream::end);
+  filesize = file.tellg();
+  std::string flagsource;
+  flagsource.resize(filesize);
+  file.seekg(0, std::ifstream::beg);
+  file.read(&flagsource[0], filesize);
 
 #if USE_DOUBLE == 1
   std::string typedef_ehfloat = "typedef double ehfloat;\n"
@@ -122,6 +133,7 @@ void engine_t::load_opencl()
 
   cl::Program::Sources sources;
   sources.push_back({ typedef_ehfloat.c_str(), typedef_ehfloat.size() });
+  sources.push_back({ flagsource.c_str(), flagsource.size() });
   sources.push_back({ source.c_str(), source.size() });
 
   program = cl::Program(context, sources);

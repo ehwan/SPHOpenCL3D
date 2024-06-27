@@ -97,6 +97,8 @@ int main()
   std::vector<ehfloat> image(X * Y * Z);
   MC33 mc33;
   surface surf;
+  std::cout << "t\tN\tnverts\tntri\n";
+  std::cout << "---------------------------------------\n";
   while (t < 20)
   {
     engine.step();
@@ -142,7 +144,8 @@ int main()
       file.write((char*)ns, sizeof(float) * 3 * nverts);
       file.write((char*)ts, sizeof(unsigned int) * 3 * ntri);
       file.flush();
-      std::cout << t << " " << engine.N << " " << nverts << " " << ntri << "\n";
+      std::cout << t << "\t" << engine.N << "\t" << nverts << "\t" << ntri
+                << "\n";
 
       // print particle position & velocity
       /*
