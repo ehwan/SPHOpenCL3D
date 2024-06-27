@@ -92,7 +92,7 @@ int main()
   ehfloat t = 0;
   int renderstep0 = 0.02 / engine.dt;
   int renderstep = 0;
-  std::ofstream file("out.dat.nosync");
+  std::ofstream file("vertices.dat");
   grid3d grid;
   std::vector<ehfloat> image(X * Y * Z);
   MC33 mc33;
